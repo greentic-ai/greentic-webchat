@@ -1,0 +1,18 @@
+{
+  "name": "greentic-webchat",
+  "private": true,
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/webchat-spa",
+    "packages/embed-examples/react"
+  ],
+  "scripts": {
+    "build": "npm run validate:skins && npm run -w apps/webchat-spa build",
+    "dev": "npm run -w apps/webchat-spa dev",
+    "validate:skins": "node scripts/validate-skins.mjs"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.53.1",
+    "@rollup/rollup-darwin-x64": "^4.53.1"
+  }
+}
