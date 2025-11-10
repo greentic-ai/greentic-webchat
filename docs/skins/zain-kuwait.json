@@ -1,0 +1,10 @@
+{
+  "theme": "zain-kuwait",
+  "brand": {
+    "name": "Zain Kuwait",
+    "primary": "#3A0F54",
+    "accent": "#E10098",
+    "highlight": "#8CC63F",
+    "text": "#111114"
+  }
+}
