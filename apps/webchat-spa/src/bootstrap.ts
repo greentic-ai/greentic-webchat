@@ -211,12 +211,20 @@ function clearFullPageCss() {
   }
 }
 
+function getRuntimeBase(): string {
+  if (typeof window !== 'undefined' && window.__BASE_PATH__) {
+    const candidate = window.__BASE_PATH__;
+    return candidate.endsWith('/') ? candidate : `${candidate}/`;
+  }
+  return base;
+}
+
 export function resolvePublicUrl(input: string): string {
   if (/^https?:/i.test(input)) {
     return input;
   }
   const normalized = input.replace(/^\/+/, '');
-  return `${base}${normalized}`;
+  return `${getRuntimeBase()}${normalized}`;
 }
 
 function rewriteShellHtml(html: string): string {
