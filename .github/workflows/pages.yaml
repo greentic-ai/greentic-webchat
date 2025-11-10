@@ -2,7 +2,7 @@ name: Deploy Pages
 
 on:
   push:
-    branches: ["main"]
+    branches: ["master"]
   workflow_dispatch:
 
 permissions:
@@ -20,68 +20,44 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
-      - name: Install dependencies
-        run: npm install
-      - name: Build webchat SPA
+          cache-dependency-path: |
+            package-lock.json
+            apps/webchat-spa/package-lock.json
+
+      - name: Install dependencies (root)
+        run: npm ci
+
+      - name: Install dependencies (SPA)
+        working-directory: apps/webchat-spa
+        run: npm ci
+
+      - name: Typecheck & validate skins
+        working-directory: apps/webchat-spa
+        run: |
+          npm run typecheck --if-present
+          npm run validate:skins --if-present || true
+
+      - name: Build SPA
+        working-directory: apps/webchat-spa
         run: npm run build
-      - name: Prepare tenant site
+
+      - name: Prepare site bundle
+        shell: bash
         run: |
           set -euo pipefail
           rm -rf site
           mkdir -p site/js site/skins
 
-          if [ -d docs ]; then
-            rsync -a docs/ site/
-          fi
+          if [ -d docs ]; then rsync -a docs/ site/; fi
 
-          cat > site/js/tenant-resolver.js <<'JS'
-          (function () {
-            function resolveTenant() {
-              const qs = new URLSearchParams(location.search);
-              const q = qs.get("tenant");
-              if (q) return q;
-
-              const a = document.documentElement?.dataset?.tenant;
-              if (a) return a;
-
-              const host = location.hostname;
-              const segs = location.pathname.split("/").filter(Boolean);
-              const IGNORE = new Set(["greentic-webchat"]);
-              if (host.endsWith("github.io") && segs.length && IGNORE.has(segs[0])) segs.shift();
-              const cleaned = segs.filter(s => !/^index\.html?$/i.test(s));
-              return cleaned[0] || "demo";
-            }
-            function resolveBasePath() {
-              const baseTag = document.querySelector("base")?.getAttribute("href");
-              if (baseTag) return baseTag;
-              const host = location.hostname;
-              const segs = location.pathname.split("/").filter(Boolean);
-              return (host.endsWith("github.io") && segs.length) ? `/${segs[0]}/` : "/";
-            }
-            if (!window.__TENANT__) window.__TENANT__ = resolveTenant();
-            if (!window.__BASE_PATH__) window.__BASE_PATH__ = resolveBasePath();
-            window.__loadSkin__ = async function () {
-              const tenant = window.__TENANT__;
-              const url = `${window.__BASE_PATH__}skins/${encodeURIComponent(tenant)}.json`;
-              try {
-                const res = await fetch(url, { credentials: "omit" });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                const skin = await res.json();
-                window.__SKIN__ = skin;
-                return skin;
-              } catch (err) {
-                console.error("[webchat] skin load failed", url, err);
-                window.__SKIN__ = { theme: "default", brand: { name: tenant } };
-                return window.__SKIN__;
-              }
-            };
-          })();
-          JS
+          mkdir -p site/app
+          rsync -a apps/webchat-spa/dist/ site/app/
 
           shopt -s nullglob
           tenants=()
@@ -91,74 +67,57 @@ jobs:
             dest="site/${tenant}"
             mkdir -p "$dest"
             cp "$index" "$dest/index.html"
-            python3 - "$tenant" "$dest/index.html" <<'PY'
-import sys, pathlib, re
-tenant = sys.argv[1]
-path = pathlib.Path(sys.argv[2])
-html = path.read_text()
-if 'tenant-resolver.js' not in html:
-    def inject_head(match):
-        return match.group(0) + '\n  <base href="../" />\n  <script src="../js/tenant-resolver.js"></script>'
-    html, _ = re.subn(r'(<head[^>]*>)', inject_head, html, count=1, flags=re.IGNORECASE)
-if 'data-tenant' not in html.lower():
-    def inject_html(match):
-        opening, attrs = match.groups()
-        attrs = attrs or ''
-        if 'data-tenant' in attrs.lower():
-            return match.group(0)
-        return f'{opening}{attrs} data-tenant="{tenant}">'
-    html, _ = re.subn(r'(<html\b)([^>]*)>', inject_html, html, count=1, flags=re.IGNORECASE)
-path.write_text(html)
-PY
+            python3 scripts/inject_tenant.py "$tenant" "$dest/index.html"
           done
 
-          if [ -d docs/skins ]; then
-            rsync -a docs/skins/ site/skins/
-          fi
-          if [ -d skins ]; then
-            rsync -a skins/ site/skins/
-          fi
-
-          cat > site/skins/cisco.json <<'JSON'
-{ "theme":"cisco","brand":{"name":"Cisco","primary":"#005c9a","accent":"#00a0e0","text":"#0b1220"} }
-JSON
-          cat > site/skins/zain-kuwait.json <<'JSON'
-{ "theme":"zain-kuwait","brand":{"name":"Zain Kuwait","primary":"#3A0F54","accent":"#E10098","highlight":"#8CC63F","text":"#111114"} }
-JSON
+          [ -e site/skins/cisco.json ] || cat > site/skins/cisco.json <<'JSON'
+          { "theme":"cisco","brand":{"name":"Cisco","primary":"#005c9a","accent":"#00a0e0","text":"#0b1220"} }
+          JSON
+          [ -e site/skins/zain-kuwait.json ] || cat > site/skins/zain-kuwait.json <<'JSON'
+          { "theme":"zain-kuwait","brand":{"name":"Zain Kuwait","primary":"#3A0F54","accent":"#E10098","highlight":"#8CC63F","text":"#111114"} }
+          JSON
 
           cat > site/index.html <<'HTML'
-<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Greentic WebChat Tenants</title>
-</head>
-<body>
-  <h1>Published Tenants</h1>
-  <ul>
-HTML
-          for tenant in "${tenants[@]}"; do
-            printf '    <li><a href="%s/">%s</a></li>\n' "$tenant" "$tenant" >> site/index.html
-          done
+          <!doctype html>
+          <html lang="en">
+          <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1">
+            <title>Greentic WebChat Tenants</title>
+          </head>
+          <body>
+            <h1>Published Tenants</h1>
+            <ul>
+          HTML
+          if [ "${#tenants[@]}" -gt 0 ]; then
+            for tenant in "${tenants[@]}"; do
+              printf '  <li><a href="%s/">%s</a></li>\n' "$tenant" "$tenant" >> site/index.html
+            done
+          fi
           cat >> site/index.html <<'HTML'
-  </ul>
-</body>
-</html>
-HTML
+            </ul>
+            <p><a href="app/">Open SPA build</a> • <a href="health.html">Health</a></p>
+          </body>
+          </html>
+          HTML
 
           echo "=== site tree ==="
           find site -maxdepth 2 -type f | sort
+
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: site
+
   deploy:
-    needs: build
-    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-latest
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
