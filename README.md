@@ -49,29 +49,27 @@ packages/
 - [`docs/embedding.md`](docs/embedding.md) – snippets for loading the widget from third-party sites.
 - [`docs/pages.md`](docs/pages.md) – CI/CD + custom domain instructions.
 
-### Tenant & Base Path Resolution (GitHub Pages friendly)
+### Tenant & Base Path Resolution (GitHub Pages-friendly)
 
-Deployments now load a tiny `public/js/tenant-resolver.js` helper before any other script. It sets two globals that every runtime consumer can rely on:
+GitHub Pages serves this repo from `/<repo>/...`, so we include a tiny resolver (`docs/js/tenant-resolver.js`) before any other frontend code. It sets two globals:
 
-1. `window.__TENANT__` respects `?tenant=cisco`, then `<html data-tenant="cisco">`, and finally falls back to the first path segment **after** the repo slug (so `/greentic-webchat/cisco` correctly resolves to `cisco` instead of `greentic-webchat`). Default fallback remains `_template`.
-2. `window.__BASE_PATH__` honors `<base href="...">` when present, otherwise it becomes `/greentic-webchat/` on GitHub Pages and `/` in local/dev environments.
+1. `window.__TENANT__` prefers `?tenant=foo`, then `<html data-tenant="foo">`, and finally the first path segment **after** the repo name (so `/greentic-webchat/cisco` resolves to `cisco`, not `greentic-webchat`). The fallback tenant is `demo`.
+2. `window.__BASE_PATH__` honors `<base href>` when present; otherwise it becomes `/greentic-webchat/` on Pages and `/` locally.
 
-Every skin/style/adaptive-card fetch now uses the base path:
+All skin fetches now use those values:
 
 ```ts
-const url = `${window.__BASE_PATH__}skins/${encodeURIComponent(window.__TENANT__!)}/skin.json`;
-const skin = await (await fetch(url)).json();
+const url = `${window.__BASE_PATH__}skins/${encodeURIComponent(window.__TENANT__)}.json`;
+const skin = await (await fetch(url, { credentials: 'omit' })).json();
 ```
 
-The resolver also exposes `window.__loadSkin__()` for standalone demos if you need to pull a tenant skin without booting the full SPA.
+Published skins (including the Cisco showcase) live under `docs/skins/`, so Pages serves them at `https://<org>.github.io/greentic-webchat/skins/<tenant>.json`. The resolver also exposes `window.__loadSkin__()` which loads the JSON, stores it on `window.__SKIN__`, and shows a non-blocking banner if the fetch fails.
 
 #### Manual QA checklist
 
-- **Local:** `npm run dev` → open `http://localhost:5173/?tenant=cisco` and verify the Cisco skin loads without console errors; `window.__TENANT__ === 'cisco'` and `window.__BASE_PATH__ === '/'`.
-- **Local attribute override:** remove the query string and add `<html data-tenant="customera">` (or load from a static file) – the Customer A skin should load.
-- **GitHub Pages:** visit `https://greentic-ai.github.io/greentic-webchat/cisco` and confirm the Cisco skin renders, `window.__TENANT__ === 'cisco'`, and `window.__BASE_PATH__ === '/greentic-webchat/'`.
-- **GitHub Pages with query:** `https://greentic-ai.github.io/greentic-webchat/cisco?tenant=customerb` should render Customer B while keeping the `/cisco` path, again with `/greentic-webchat/` as the base path.
-- Console should not show “Unable to load skin” errors in any scenario.
+- **Local (SPA):** `npm run dev`, open `http://localhost:5173/?tenant=cisco`, confirm `window.__TENANT__ === 'cisco'`, `window.__BASE_PATH__ === '/'`, and no “Unable to load skin” banner.
+- **Local (static docs):** `npm run sync:cisco && (cd docs && python3 -m http.server 8080)`, open `http://localhost:8080/cisco?tenant=cisco`, confirm the Cisco skin loads from `/skins/cisco.json`.
+- **GitHub Pages:** `https://greentic-ai.github.io/greentic-webchat/cisco` should download `/greentic-webchat/skins/cisco.json`, log `__TENANT__ === 'cisco'`, `__BASE_PATH__ === '/greentic-webchat/'`, and render without errors—even with overrides such as `?tenant=customerb`.
 
 ## GitHub Pages
 

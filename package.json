@@ -9,7 +9,8 @@
   "scripts": {
     "build": "npm run validate:skins && npm run -w apps/webchat-spa build",
     "dev": "npm run -w apps/webchat-spa dev",
-    "validate:skins": "node scripts/validate-skins.mjs"
+    "validate:skins": "node scripts/validate-skins.mjs",
+    "sync:cisco": "node scripts/sync-cisco-demo.mjs"
   },
   "optionalDependencies": {
     "@rollup/rollup-darwin-arm64": "^4.53.1",
