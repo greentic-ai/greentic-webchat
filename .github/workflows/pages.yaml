@@ -92,23 +92,23 @@ jobs:
             mkdir -p "$dest"
             cp "$index" "$dest/index.html"
             python3 - "$tenant" "$dest/index.html" <<'PY'
-              import sys, pathlib, re
-              tenant = sys.argv[1]
-              path = pathlib.Path(sys.argv[2])
-              html = path.read_text()
-              if 'tenant-resolver.js' not in html:
-                  def inject_head(match):
-                      return match.group(0) + '\n  <base href="../" />\n  <script src="../js/tenant-resolver.js"></script>'
-                  html, _ = re.subn(r'(<head[^>]*>)', inject_head, html, count=1, flags=re.IGNORECASE)
-              if 'data-tenant' not in html.lower():
-                  def inject_html(match):
-                      opening, attrs = match.groups()
-                      attrs = attrs or ''
-                      if 'data-tenant' in attrs.lower():
-                          return match.group(0)
-                      return f'{opening}{attrs} data-tenant="{tenant}">'
-                  html, _ = re.subn(r'(<html\b)([^>]*)>', inject_html, html, count=1, flags=re.IGNORECASE)
-              path.write_text(html)
+import sys, pathlib, re
+tenant = sys.argv[1]
+path = pathlib.Path(sys.argv[2])
+html = path.read_text()
+if 'tenant-resolver.js' not in html:
+    def inject_head(match):
+        return match.group(0) + '\n  <base href="../" />\n  <script src="../js/tenant-resolver.js"></script>'
+    html, _ = re.subn(r'(<head[^>]*>)', inject_head, html, count=1, flags=re.IGNORECASE)
+if 'data-tenant' not in html.lower():
+    def inject_html(match):
+        opening, attrs = match.groups()
+        attrs = attrs or ''
+        if 'data-tenant' in attrs.lower():
+            return match.group(0)
+        return f'{opening}{attrs} data-tenant="{tenant}">'
+    html, _ = re.subn(r'(<html\b)([^>]*)>', inject_html, html, count=1, flags=re.IGNORECASE)
+path.write_text(html)
 PY
           done
 
