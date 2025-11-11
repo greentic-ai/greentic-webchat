@@ -931,60 +931,100 @@
 </body>
 <script>
   (function boot() {
-    const MAX = 30;
-    const STEP = 1000;
-    let tries = 0;
+    const DEFAULT_DIRECT_LINE_URL = 'https://demo.greentic.ai/token?tenant=zain-kuwait';
+    const statusPill = document.getElementById('status-pill');
+    const statusText = document.getElementById('status-text');
+    const webchatContainer = document.getElementById('webchat');
+    const skeleton = document.getElementById('skeleton-placeholder');
 
-    function tryInit() {
-      const token = window.__DIRECT_LINE_TOKEN__;
-      if (!token || !window.WebChat) {
-        return false;
+    function updateStatus(state, text) {
+      if (statusPill) {
+        statusPill.classList.remove('connecting', 'connected', 'error');
+        statusPill.classList.add(state);
       }
-
-      const styleOptions = {
-        hideUploadButton: true,
-        bubbleBorderRadius: 12,
-        bubbleBackground: '#f6f5fa',
-        bubbleFromUserBackground: '#3A0F54',
-        bubbleFromUserBorderRadius: 12,
-        bubbleFromUserTextColor: '#ffffff',
-        botAvatarInitials: 'AI',
-        userAvatarInitials: 'You',
-        backgroundColor: 'transparent',
-        primaryFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
-      };
-
-      window.WebChat.renderWebChat(
-        {
-          directLine: window.WebChat.createDirectLine({ token }),
-          styleOptions
-        },
-        document.getElementById('webchat')
-      );
-
-      document.getElementById('webchat').classList.add('active');
-      const skeleton = document.getElementById('skeleton-placeholder');
-      if (skeleton) skeleton.remove();
-
-      const pill = document.getElementById('status-pill');
-      const text = document.getElementById('status-text');
-      if (pill) {
-        pill.classList.remove('connecting');
-        pill.classList.add('connected');
+      if (statusText) {
+        statusText.textContent = text;
       }
-      if (text) {
-        text.textContent = 'Connected';
-      }
-      return true;
     }
 
-    if (!tryInit()) {
-      const interval = setInterval(() => {
-        if (tryInit() || ++tries >= MAX) {
-          clearInterval(interval);
+    function getDirectLineUrl() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('directline') || DEFAULT_DIRECT_LINE_URL;
+    }
+
+    function showError(message) {
+      updateStatus('connecting', message);
+      if (webchatContainer) {
+        webchatContainer.classList.add('active');
+        webchatContainer.innerHTML = `
+          <div class="error-container">
+            <div class="error-icon" role="img" aria-label="Error">⚠</div>
+            <p class="error-message">Unable to connect</p>
+            <p class="error-description">${message}</p>
+          </div>
+        `;
+      }
+      if (skeleton) {
+        skeleton.remove();
+      }
+    }
+
+    async function fetchDirectLineToken() {
+      updateStatus('connecting', 'Requesting token…');
+      const response = await fetch(getDirectLineUrl(), {
+        headers: { Accept: 'application/json' },
+        cache: 'no-store'
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const json = await response.json();
+      if (!json.token) {
+        throw new Error('Token endpoint did not return a token property.');
+      }
+      return json.token;
+    }
+
+    async function initWebChat() {
+      try {
+        const token = window.__DIRECT_LINE_TOKEN__ || (await fetchDirectLineToken());
+        window.__DIRECT_LINE_TOKEN__ = token;
+
+        const styleOptions = {
+          hideUploadButton: true,
+          bubbleBorderRadius: 12,
+          bubbleBackground: '#f6f5fa',
+          bubbleFromUserBackground: '#3A0F54',
+          bubbleFromUserBorderRadius: 12,
+          bubbleFromUserTextColor: '#ffffff',
+          botAvatarInitials: 'AI',
+          userAvatarInitials: 'You',
+          backgroundColor: 'transparent',
+          primaryFont: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        };
+
+        window.WebChat.renderWebChat(
+          {
+            directLine: window.WebChat.createDirectLine({ token }),
+            styleOptions
+          },
+          webchatContainer
+        );
+
+        if (webchatContainer) {
+          webchatContainer.classList.add('active');
         }
-      }, STEP);
+        if (skeleton) {
+          skeleton.remove();
+        }
+        updateStatus('connected', 'Connected');
+      } catch (error) {
+        console.error('[zain-demo] Failed to initialize Web Chat', error);
+        showError('Unable to fetch a Direct Line token. Please try again later.');
+      }
     }
+
+    initWebChat();
   })();
 </script>
 </html>
