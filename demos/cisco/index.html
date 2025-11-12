@@ -15,6 +15,10 @@
       padding: 0;
     }
 
+    html {
+      height: 100%;
+    }
+
     /* === DESIGN TOKENS === */
     :root {
       /* Cisco blues */
@@ -72,6 +76,7 @@
       background: var(--surface-50);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      height: 100%;
     }
 
     h1, h2, h3, h4, h5, h6 {
@@ -310,181 +315,109 @@
       padding: var(--space-12) var(--space-6);
     }
 
-    /* === CHAT CARD === */
-    .chat-card {
+    .bot-shell {
       background: var(--surface-white);
       border-radius: var(--radius-lg);
       border: var(--border);
       box-shadow: var(--shadow-md);
-      overflow: hidden;
-      min-height: 600px;
+      padding: var(--space-6);
+      margin-top: var(--space-6);
       display: flex;
       flex-direction: column;
-      transition: box-shadow var(--transition-base);
-      animation: fadeInScale 0.5s ease-out;
+      gap: 1rem;
     }
 
-    .chat-card:hover {
-      box-shadow: var(--shadow-lg);
-    }
-
-    .chat-card-header {
+    .bot-shell-main {
+      flex: 1;
       display: flex;
-      align-items: center;
-      gap: var(--space-3);
-      padding: var(--space-4) var(--space-6);
-      border-bottom: var(--border);
-      background: var(--surface-50);
-    }
-
-    .chat-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: linear-gradient(135deg, var(--blue-500), var(--blue-300));
-      display: flex;
-      align-items: center;
       justify-content: center;
-      color: var(--text-inverse);
-      font-weight: 700;
-      font-size: 0.875rem;
-      box-shadow: var(--shadow-sm);
     }
 
-    .chat-title {
-      flex: 1;
-      font-size: 1.125rem;
-      font-weight: 600;
-      color: var(--text-strong);
-    }
-
-    .status-pill {
-      display: flex;
-      align-items: center;
-      gap: var(--space-2);
-      padding: var(--space-2) var(--space-4);
-      background: var(--surface-100);
-      border-radius: 999px;
-      font-size: 0.8125rem;
-      font-weight: 500;
-      color: var(--text-muted);
-    }
-
-    .status-pill.connecting .status-dot {
-      background: var(--warning);
-      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    .status-pill.connected .status-dot {
-      background: var(--success);
-    }
-
-    .status-pill.error .status-dot {
-      background: var(--danger);
-    }
-
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
-    .chat-card-body {
-      flex: 1;
+    .bot-chat-panel {
+      width: 100%;
+      max-width: 1000px;
       display: flex;
       flex-direction: column;
-      position: relative;
-      min-height: 500px;
+      border-radius: 1.25rem;
+      border: 1px solid rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+      background: #fff;
+      box-shadow: 0 15px 40px rgba(2, 18, 46, 0.12);
     }
 
     #webchat {
       flex: 1;
-      display: flex;
-      flex-direction: column;
+      min-height: 480px;
     }
 
-    /* Skeleton State */
-    .skeleton-container {
-      padding: var(--space-6);
-      display: flex;
-      flex-direction: column;
-      gap: var(--space-4);
-      align-items: center;
-      justify-content: center;
-      min-height: 500px;
-    }
-
-    .skeleton {
-      background: linear-gradient(90deg, var(--surface-100) 25%, var(--surface-200) 50%, var(--surface-100) 75%);
-      background-size: 200% 100%;
-      animation: shimmer 2s infinite;
-      border-radius: var(--radius-sm);
-    }
-
-    .skeleton-message {
-      width: 70%;
-      height: 60px;
-      margin-bottom: var(--space-3);
-    }
-
-    .skeleton-text {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 0.9375rem;
-      margin-top: var(--space-4);
-    }
-
-    /* Error State */
-    .error-container {
-      padding: var(--space-6);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 500px;
-      text-align: center;
-    }
-
-    .error-icon {
-      width: 64px;
-      height: 64px;
-      background: var(--danger);
-      border-radius: 50%;
+    .status-bar {
       display: flex;
       align-items: center;
-      justify-content: center;
-      color: var(--text-inverse);
-      font-size: 2rem;
-      margin-bottom: var(--space-4);
-    }
-
-    .error-message {
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(15, 23, 42, 0.08);
+      background: rgba(255, 255, 255, 0.95);
+      font-weight: 600;
       color: var(--text-strong);
-      font-size: 1.125rem;
-      font-weight: 600;
-      margin-bottom: var(--space-2);
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.12);
     }
 
-    .error-description {
-      color: var(--text-muted);
-      margin-bottom: var(--space-6);
+    .connection-dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      background: var(--status-warn, #f59e0b);
+      display: inline-block;
     }
 
-    .error-retry {
-      padding: var(--space-3) var(--space-6);
-      background: var(--accent);
-      color: var(--text-inverse);
-      border: none;
-      border-radius: var(--radius-sm);
-      font-weight: 600;
-      cursor: pointer;
-      transition: all var(--transition-base);
+    .status-bar.ok .connection-dot,
+    .connection-dot.ok {
+      background: var(--status-ok, #22c55e);
     }
 
-    .error-retry:hover {
-      background: var(--blue-500);
-      transform: translateY(-1px);
-      box-shadow: var(--shadow-sm);
+    .status-bar.warn .connection-dot,
+    .connection-dot.warn {
+      background: var(--status-warn, #f59e0b);
+    }
+
+    .status-bar.err .connection-dot,
+    .connection-dot.err {
+      background: var(--status-err, #ef4444);
+    }
+
+    .error-state {
+      padding: var(--space-6);
+      background: rgba(239, 68, 68, 0.1);
+      color: var(--text-strong);
+      border-top: 1px solid rgba(239, 68, 68, 0.3);
+      font-size: 0.95rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .error-state.hidden {
+      display: none;
+    }
+
+    .debug-overlay {
+      position: fixed;
+      bottom: 1rem;
+      right: 1rem;
+      background: rgba(2, 6, 23, 0.9);
+      color: #fff;
+      padding: 0.75rem 1rem;
+      border-radius: 0.75rem;
+      font-size: 0.75rem;
+      z-index: 999;
+      max-width: 240px;
+      box-shadow: 0 10px 30px rgba(2, 6, 23, 0.4);
+      line-height: 1.3;
+    }
+
+    .debug-overlay.hidden {
+      display: none;
     }
 
     /* === FOOTER === */
@@ -683,28 +616,21 @@
 
   <!-- MAIN CHAT -->
   <main role="main">
-    <article class="chat-card">
-      <div class="chat-card-header">
-        <div class="chat-avatar" aria-label="AI Assistant">AI</div>
-        <h2 class="chat-title">Cisco Assistant</h2>
-        <div class="status-pill connecting" id="status-indicator" role="status" aria-live="polite">
-          <span class="status-dot"></span>
-          <span id="status-text">Connecting…</span>
-        </div>
+    <section class="bot-shell" aria-label="Cisco AI Assistant chat">
+      <div id="statusbar" class="status-bar warn" role="status" aria-live="polite">
+        <span class="connection-dot status-dot warn" id="status-dot" aria-hidden="true"></span>
+        <span id="status-text">Connecting…</span>
       </div>
-      <div class="chat-card-body">
-        <!-- Web Chat will be rendered here by greentic-webchat via window.__DIRECT_LINE_TOKEN__ -->
-        <div id="webchat" role="region" aria-label="Chat interface">
-          <!-- Initial skeleton state while waiting for token -->
-          <div class="skeleton-container" id="skeleton-state">
-            <div class="skeleton skeleton-message"></div>
-            <div class="skeleton skeleton-message"></div>
-            <div class="skeleton skeleton-message"></div>
-            <p class="skeleton-text">Waiting for Direct Line token…</p>
+      <div class="bot-shell-main">
+        <div class="bot-chat-panel">
+          <div id="webchat" role="region" aria-label="Cisco AI Assistant" class="bot-chat"></div>
+          <div id="error-state" class="error-state hidden" role="alert">
+            <p class="error-title" id="error-title"></p>
+            <p class="error-message" id="error-message"></p>
           </div>
         </div>
       </div>
-    </article>
+    </section>
   </main>
 
   <!-- FOOTER -->
@@ -718,113 +644,94 @@
     </div>
   </footer>
 
-  <!-- Direct Line token injection for Cisco demo -->
-  <script>
-    window.__DIRECT_LINE_TOKEN__ = 'cisco_demo_token';
-  </script>
-
   <!-- BotFramework Web Chat CDN -->
   <script src="https://cdn.botframework.com/botframework-webchat/latest/webchat.js" crossorigin="anonymous"></script>
 
-  <!-- Application Script -->
   <script>
-    (function() {
+    (function () {
       'use strict';
 
-      const header = document.getElementById('main-header');
-      const webchatContainer = document.getElementById('webchat');
-      const statusIndicator = document.getElementById('status-indicator');
+      const DEFAULT_TOKEN_URL = 'https://demo.greentic.ai/token?tenant=cisco';
+      const statusBar = document.getElementById('statusbar');
+      const statusDot = document.getElementById('status-dot');
       const statusText = document.getElementById('status-text');
-      const skeletonState = document.getElementById('skeleton-state');
+      const webchatContainer = document.getElementById('webchat');
+      const errorState = document.getElementById('error-state');
+      const errorTitle = document.getElementById('error-title');
+      const errorMessage = document.getElementById('error-message');
+      const debugEnabled = new URLSearchParams(window.location.search).get('debug') === '1';
+      const debugOverlay = document.createElement('div');
+      debugOverlay.id = 'debug-overlay';
+      debugOverlay.classList.add('debug-overlay', 'hidden');
+      document.body.appendChild(debugOverlay);
 
-      function updateStatus(status, text) {
-        if (!statusIndicator || !statusText) {
+      const styleOptions = {
+        hideUploadButton: true,
+        bubbleBorderRadius: 12,
+        bubbleBackground: '#FFFFFF',
+        bubbleFromUserBackground: '#00a0e0',
+        bubbleFromUserBorderRadius: 12,
+        bubbleTextColor: '#0b1220',
+        bubbleFromUserTextColor: '#FFFFFF',
+        botAvatarInitials: 'AI',
+        userAvatarInitials: 'You',
+        accent: '#00a0e0',
+        subtle: '#475569',
+        cardEmphasisBackgroundColor: '#f1f5f9',
+        paddingRegular: 12,
+        primaryFont: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
+      };
+
+      let tokenFetchState = 'idle';
+      let connectionStatus = 'uninitialized';
+      let resolvedTokenUrl = '';
+      let resolvedDomain = '';
+      let resolvedTenant = window.__TENANT__ || 'cisco';
+      let resolvedSkinTheme = 'cisco';
+
+      function updateDebugPanel() {
+        if (!debugEnabled) {
+          debugOverlay.classList.add('hidden');
           return;
         }
-        statusIndicator.className = `status-pill ${status}`;
+        debugOverlay.classList.remove('hidden');
+        debugOverlay.innerHTML = `
+          <strong>debug</strong>
+          <div>tokenFetchState: ${tokenFetchState}</div>
+          <div>connectionStatus: ${connectionStatus}</div>
+          <div>tokenUrl: ${resolvedTokenUrl || 'n/a'}</div>
+          <div>domain: ${resolvedDomain || 'n/a'}</div>
+          <div>tenant: ${resolvedTenant}</div>
+          <div>skin: ${resolvedSkinTheme}</div>
+        `;
+      }
+
+      function setStatus(kind, text) {
+        if (!statusBar || !statusText || !statusDot) {
+          return;
+        }
+        statusBar.classList.remove('ok', 'warn', 'err');
+        statusDot.classList.remove('ok', 'warn', 'err');
+        statusBar.classList.add(kind);
+        statusDot.classList.add(kind);
         statusText.textContent = text;
+        updateDebugPanel();
       }
 
-      function handleScroll() {
-        if (!header) return;
-        const currentScroll = window.pageYOffset;
-        if (currentScroll > 10) {
-          header.classList.add('scrolled');
-        } else {
-          header.classList.remove('scrolled');
+      function showError(title, message) {
+        if (!errorState || !errorTitle || !errorMessage) {
+          return;
         }
+        errorTitle.textContent = title;
+        errorMessage.textContent = message;
+        errorState.classList.remove('hidden');
       }
 
-      function initWebChatWhenReady() {
-        function tryInit() {
-          const token = window.__DIRECT_LINE_TOKEN__;
-          if (!token) {
-            return false;
-          }
-
-          if (skeletonState) {
-            skeletonState.remove();
-          }
-
-          updateStatus('connected', 'Connected');
-
-          const styleOptions = {
-            hideUploadButton: true,
-            bubbleBorderRadius: 12,
-            bubbleBackground: '#FFFFFF',
-            bubbleFromUserBackground: '#00a0e0',
-            bubbleFromUserBorderRadius: 12,
-            bubbleTextColor: '#0b1220',
-            bubbleFromUserTextColor: '#FFFFFF',
-            botAvatarInitials: 'AI',
-            userAvatarInitials: 'You',
-            accent: '#00a0e0',
-            subtle: '#475569',
-            cardEmphasisBackgroundColor: '#f1f5f9',
-            paddingRegular: 12,
-            primaryFont: 'ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif'
-          };
-
-          if (!webchatContainer) {
-            return true;
-          }
-
-          window.WebChat.renderWebChat(
-            {
-              directLine: window.WebChat.createDirectLine({ token }),
-              styleOptions
-            },
-            webchatContainer
-          );
-
-          return true;
+      function applyBrand(skin) {
+        if (!skin || !skin.brand) {
+          return;
         }
-
-        if (!tryInit()) {
-          updateStatus('connecting', 'Waiting for token…');
-          const interval = setInterval(() => {
-            if (tryInit()) {
-              clearInterval(interval);
-            }
-          }, 1000);
-          setTimeout(() => clearInterval(interval), 30000);
-        }
-      }
-
-      document.addEventListener('DOMContentLoaded', () => {
-        initWebChatWhenReady();
-        window.addEventListener('scroll', handleScroll, { passive: true });
-      });
-    })();
-  </script>
-  <script>
-    (async function applySkinTheme() {
-      if (typeof window.__loadSkin__ !== 'function') {
-        return;
-      }
-      try {
-        const skin = await window.__loadSkin__();
-        const brand = skin && skin.brand ? skin.brand : {};
+        const brand = skin.brand;
         const root = document.documentElement;
         if (brand.primary) {
           root.style.setProperty('--blue-900', brand.primary);
@@ -837,9 +744,213 @@
         if (brand.text) {
           root.style.setProperty('--text-strong', brand.text);
         }
-      } catch (error) {
-        console.warn('[cisco-demo] Falling back to default theme after skin error.', error);
       }
+
+      function applyStatusColors(brandColors) {
+        const root = document.documentElement;
+        if (!brandColors) {
+          root.style.setProperty('--status-ok', '#22c55e');
+          root.style.setProperty('--status-warn', '#f59e0b');
+          root.style.setProperty('--status-err', '#ef4444');
+          return;
+        }
+        if (brandColors.ok) {
+          root.style.setProperty('--status-ok', brandColors.ok);
+        }
+        if (brandColors.warn) {
+          root.style.setProperty('--status-warn', brandColors.warn);
+        }
+        if (brandColors.err) {
+          root.style.setProperty('--status-err', brandColors.err);
+        }
+      }
+
+      function normalizeConnectionStatus(value) {
+        const conn = window.WebChat?.ConnectionStatus;
+        if (!conn || typeof value !== 'number') {
+          return null;
+        }
+        if (value === conn.Online) {
+          return 'connected';
+        }
+        if (value === conn.Connecting || value === conn.Uninitialized) {
+          return 'connecting';
+        }
+        if ('Reconnecting' in conn && value === conn.Reconnecting) {
+          return 'reconnecting';
+        }
+        if (value === conn.FailedToConnect || value === conn.Ended) {
+          return 'failedToConnect';
+        }
+        if (value === conn.ExpiredToken) {
+          return 'expiredToken';
+        }
+        return null;
+      }
+
+      function handleConnectionStatus(status) {
+        const normalized = normalizeConnectionStatus(status);
+        if (!normalized) {
+          return;
+        }
+        connectionStatus = normalized;
+        updateDebugPanel();
+        if (normalized === 'connected') {
+          setStatus('ok', 'Connected');
+        } else if (normalized === 'failedToConnect' || normalized === 'expiredToken' || normalized === 'reconnecting') {
+          setStatus('err', 'Disconnected. Reconnecting…');
+        } else {
+          setStatus('warn', 'Connecting…');
+        }
+      }
+
+      function getDirectLineOverride() {
+        const params = new URLSearchParams(window.location.search);
+        const value = params.get('directline');
+        if (!value) {
+          return null;
+        }
+        return value.trim();
+      }
+
+      function normalizeUrl(input) {
+        const trimmed = input.trim();
+        if (/^https?:\/\//i.test(trimmed)) {
+          return trimmed;
+        }
+        return `https://${trimmed}`;
+      }
+
+      function looksLikeDirectLineDomain(url) {
+        const cleanPath = (url.pathname || '/').replace(/\/+$/, '') || '/';
+        return cleanPath === '/' || /\/v3\/directline$/i.test(cleanPath);
+      }
+
+      function buildDirectLineDomain(url) {
+        const cleanPath = (url.pathname || '/').replace(/\/+$/, '');
+        if (!cleanPath || cleanPath === '/') {
+          return `${url.origin}/v3/directline`;
+        }
+        if (/\/v3\/directline$/i.test(cleanPath)) {
+          return `${url.origin}${cleanPath}`;
+        }
+        return `${url.origin}${cleanPath}`;
+      }
+
+      async function requestToken(url) {
+        resolvedTokenUrl = url;
+        updateDebugPanel();
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { Accept: 'application/json' },
+          credentials: 'omit'
+        });
+        if (!response.ok) {
+          throw new Error(`Direct Line token request failed (${response.status})`);
+        }
+        const payload = await response.json();
+        if (!payload || typeof payload.token !== 'string') {
+          throw new Error('Token endpoint did not return a token.');
+        }
+        tokenFetchState = 'ok';
+        updateDebugPanel();
+        return payload.token;
+      }
+
+      async function resolveDirectLineConfig(baseTokenUrl) {
+        tokenFetchState = 'loading';
+        updateDebugPanel();
+        const override = getDirectLineOverride();
+        if (!override) {
+          const token = await requestToken(baseTokenUrl);
+          return { token };
+        }
+        const normalized = normalizeUrl(override);
+        try {
+          const token = await requestToken(normalized);
+          return { token };
+        } catch (error) {
+          let parsedUrl;
+          try {
+            parsedUrl = new URL(normalized);
+          } catch {
+            throw error;
+          }
+          if (!looksLikeDirectLineDomain(parsedUrl)) {
+            throw error;
+          }
+          const token = await requestToken(baseTokenUrl);
+          resolvedDomain = buildDirectLineDomain(parsedUrl);
+          updateDebugPanel();
+          return { token, domain: resolvedDomain };
+        }
+      }
+
+      async function getSkinContext() {
+        if (typeof window.__loadSkin__ === 'function') {
+          try {
+            const skin = await window.__loadSkin__();
+            resolvedTenant = skin?.tenant || resolvedTenant;
+            resolvedSkinTheme = skin?.theme || resolvedSkinTheme;
+            return skin;
+          } catch {
+            return null;
+          }
+        }
+        return null;
+      }
+
+      async function init() {
+        try {
+          const skin = await getSkinContext();
+          applyBrand(skin);
+          applyStatusColors(skin?.statusBar?.brand);
+          setStatus('warn', 'Connecting…');
+          const tokenUrl = skin?.directLine?.tokenUrl || DEFAULT_TOKEN_URL;
+          const directLineConfig = await resolveDirectLineConfig(tokenUrl);
+          if (!window.WebChat || !webchatContainer) {
+            throw new Error('WebChat root or library missing');
+          }
+          const directLine = window.WebChat.createDirectLine({
+            token: directLineConfig.token,
+            webSocket: true,
+            ...(directLineConfig.domain ? { domain: directLineConfig.domain } : {})
+          });
+          directLine.connectionStatus$?.subscribe(handleConnectionStatus);
+          window.WebChat.renderWebChat(
+            {
+              directLine,
+              styleOptions
+            },
+            webchatContainer
+          );
+        } catch (error) {
+          tokenFetchState = 'error';
+          updateDebugPanel();
+          setStatus('err', 'Unable to fetch a Direct Line token. Please try again later.');
+          showError('Unable to connect', 'We could not reach the Direct Line token service. Please try again later.');
+          console.error('[cisco-demo] Web Chat initialization failed', error);
+        }
+      }
+
+      function whenReady(callback) {
+        if (window.WebChat) {
+          callback();
+          return;
+        }
+        const script = document.querySelector('script[src*="botframework-webchat"]');
+        if (script) {
+          script.addEventListener('load', callback);
+          script.addEventListener('error', () => {
+            console.error('Unable to load BotFramework Web Chat script.');
+          });
+        } else {
+          window.addEventListener('load', callback);
+        }
+      }
+
+      updateDebugPanel();
+      whenReady(init);
     })();
   </script>
 </body>

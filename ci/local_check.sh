@@ -56,6 +56,16 @@ if missing:
         print('  ', entry)
     sys.exit(1)
 PY
+echo "[local_check] ensuring Cisco demo renders WebChat + StatusBar"
+if [ ! -f docs/cisco/index.html ]; then
+  echo "docs/cisco/index.html missing!"
+  exit 1
+fi
+if ! grep -q 'id=\"webchat\"' docs/cisco/index.html || ! grep -q 'id=\"statusbar\"' docs/cisco/index.html; then
+  echo "docs/cisco/index.html missing required WebChat mounts"
+  exit 1
+fi
+
 mkdir -p site/app
 rsync -a apps/webchat-spa/dist/ site/app/
 
