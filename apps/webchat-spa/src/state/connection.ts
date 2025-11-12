@@ -1,5 +1,5 @@
 import { useSyncExternalStore } from 'react';
-import type { WebChatStore } from '../types';
+import type { DirectLineConnection, WebChatStore } from '../types';
 
 export type WebChatConnectionStatus =
   | 'uninitialized'
@@ -67,7 +67,7 @@ function subscribeToStore(store?: WebChatStore) {
   return () => unsubscribe?.();
 }
 
-function subscribeToDirectLine(directLine?: { connectionStatus$?: { subscribe: (listener: (status: unknown) => void) => { unsubscribe?: () => void } } }) {
+function subscribeToDirectLine(directLine?: DirectLineConnection) {
   if (!directLine || !directLine.connectionStatus$ || typeof directLine.connectionStatus$.subscribe !== 'function') {
     return () => {};
   }

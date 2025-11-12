@@ -1,0 +1,16 @@
+{
+  "hideUploadButton": true,
+  "bubbleBorderRadius": 12,
+  "bubbleBackground": "#FFFFFF",
+  "bubbleFromUserBackground": "#00a0e0",
+  "bubbleFromUserBorderRadius": 12,
+  "bubbleTextColor": "#0b1220",
+  "bubbleFromUserTextColor": "#FFFFFF",
+  "botAvatarInitials": "AI",
+  "userAvatarInitials": "You",
+  "accent": "#00a0e0",
+  "subtle": "#475569",
+  "cardEmphasisBackgroundColor": "#f1f5f9",
+  "paddingRegular": 12,
+  "primaryFont": "ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif"
+}

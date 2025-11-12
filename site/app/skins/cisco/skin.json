@@ -1,0 +1,30 @@
+{
+  "tenant": "cisco",
+  "mode": "fullpage",
+  "brand": {
+    "name": "Cisco",
+    "favicon": "/skins/cisco/assets/favicon.ico",
+    "logo": "/skins/cisco/assets/cisco-logo.svg",
+    "primary": "#005c9a"
+  },
+  "directLine": {
+    "tokenUrl": "https://demo.greentic.ai/token?tenant=cisco"
+  },
+  "webchat": {
+    "styleOptions": "/skins/cisco/webchat/styleOptions.json",
+    "adaptiveCardsHostConfig": "/skins/cisco/webchat/hostconfig.json",
+    "locale": "en-US"
+  },
+  "fullpage": {
+    "index": "/skins/cisco/fullpage/index.html",
+    "css": "/skins/cisco/fullpage/page.css"
+  },
+  "statusBar": {
+    "show": true,
+    "brand": {
+      "ok": "#22c55e",
+      "warn": "#f59e0b",
+      "err": "#ef4444"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "accent": "#8B2FC9",
+  "botAvatarBackgroundColor": "#8B2FC9",
+  "botAvatarInitials": "CC",
+  "userAvatarBackgroundColor": "#3D0F53",
+  "userAvatarInitials": "You",
+  "hideUploadButton": true,
+  "bubbleBackground": "#F9F5FF",
+  "bubbleBorderRadius": 12,
+  "bubbleNubOffset": 0,
+  "bubbleNubSize": 4,
+  "scrollbarThumbColor": "#c29de0"
+}

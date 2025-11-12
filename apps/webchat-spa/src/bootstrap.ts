@@ -7,7 +7,7 @@ import {
   WebChatExports,
   WebChatStore
 } from './types';
-import { fetchDirectLineToken } from './lib/directline';
+import { resolveDirectLineConfig } from './lib/directline';
 import { watchWebChatConnection } from './state/connection';
 
 const WEBCHAT_CDN = 'https://cdn.botframework.com/botframework-webchat/latest/webchat.js';
@@ -41,9 +41,9 @@ export async function prepareExperience(): Promise<PreparedExperience> {
       ? fetchFullPageShell(resolvePublicUrl(skin.fullpage.index))
       : Promise.resolve<string | undefined>(undefined);
 
-  const [webChat, token, styleOptions, hostConfig, hooksModule, shellHtml] = await Promise.all([
+  const [webChat, directLineConfig, styleOptions, hostConfig, hooksModule, shellHtml] = await Promise.all([
     ensureWebChatLoaded(),
-    fetchDirectLineToken(skin.directLine.tokenUrl),
+    resolveDirectLineConfig(skin.directLine.tokenUrl),
     fetchJson<Record<string, unknown>>(skin.webchat.styleOptions),
     fetchJson<Record<string, unknown>>(skin.webchat.adaptiveCardsHostConfig),
     loadHooks(skin.hooks?.script),
@@ -60,7 +60,12 @@ export async function prepareExperience(): Promise<PreparedExperience> {
         throw new Error('Missing WebChat mount node');
       }
 
-      const directLine = webChat.createDirectLine({ token });
+      const directLineConfigOptions = {
+        token: directLineConfig.token,
+        webSocket: true,
+        ...(directLineConfig.domain ? { domain: directLineConfig.domain } : {})
+      };
+      const directLine = webChat.createDirectLine(directLineConfigOptions);
       const config: WebChatConfig = {
         directLine,
         locale: skin.webchat.locale ?? 'en-US',

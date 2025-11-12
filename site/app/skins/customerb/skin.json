@@ -1,0 +1,33 @@
+{
+  "tenant": "customerb",
+  "mode": "fullpage",
+  "brand": {
+    "name": "Customer B",
+    "favicon": "/skins/customerb/assets/favicon.ico",
+    "logo": "/skins/customerb/assets/logo.svg",
+    "primary": "#0E8A16"
+  },
+  "directLine": {
+    "tokenUrl": "https://demo.greentic.ai/token?tenant=customerb"
+  },
+  "webchat": {
+    "styleOptions": "/skins/customerb/webchat/styleOptions.json",
+    "adaptiveCardsHostConfig": "/skins/customerb/webchat/hostconfig.json",
+    "locale": "en-GB"
+  },
+  "statusBar": {
+    "show": true,
+    "brand": {
+      "ok": "#22c55e",
+      "warn": "#f59e0b",
+      "err": "#ef4444"
+    }
+  },
+  "fullpage": {
+    "index": "/skins/customerb/fullpage/index.html",
+    "css": "/skins/customerb/fullpage/page.css"
+  },
+  "hooks": {
+    "script": "/skins/customerb/webchat/hooks.js"
+  }
+}

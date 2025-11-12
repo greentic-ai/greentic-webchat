@@ -31,9 +31,21 @@ export interface WebChatConnectionStatusEnum {
   Ended?: number;
 }
 
+export interface DirectLineOptions {
+  token: string;
+  domain?: string;
+  webSocket?: boolean;
+}
+
+export interface DirectLineConnection {
+  connectionStatus$?: {
+    subscribe: (listener: (status: unknown) => void) => { unsubscribe?: () => void };
+  };
+}
+
 export interface WebChatExports {
   ConnectionStatus?: WebChatConnectionStatusEnum;
-  createDirectLine: (options: { token: string }) => unknown;
+  createDirectLine: (options: DirectLineOptions) => DirectLineConnection;
   createStore?: (initialState?: Record<string, unknown>, ...middleware: StoreMiddleware[]) => WebChatStore;
   renderWebChat: (config: WebChatConfig, element: HTMLElement) => void;
 }

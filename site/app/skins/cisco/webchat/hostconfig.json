@@ -1,0 +1,23 @@
+{
+  "fontFamily": "ui-sans-serif, 'Segoe UI', Helvetica, Arial, sans-serif",
+  "spacing": {
+    "small": 6,
+    "default": 12,
+    "medium": 16,
+    "large": 20
+  },
+  "containerStyles": {
+    "default": {
+      "foregroundColors": {
+        "default": {
+          "default": "#0b1220",
+          "subtle": "#475569"
+        },
+        "accent": {
+          "default": "#00a0e0",
+          "subtle": "#00a0e0"
+        }
+      }
+    }
+  }
+}
