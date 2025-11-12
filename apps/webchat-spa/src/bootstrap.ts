@@ -4,8 +4,11 @@ import {
   skinSchema,
   SkinHooksModule,
   WebChatConfig,
-  WebChatExports
+  WebChatExports,
+  WebChatStore
 } from './types';
+import { fetchDirectLineToken } from './lib/directline';
+import { watchWebChatConnection } from './state/connection';
 
 const WEBCHAT_CDN = 'https://cdn.botframework.com/botframework-webchat/latest/webchat.js';
 const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '') + '/';
@@ -40,7 +43,7 @@ export async function prepareExperience(): Promise<PreparedExperience> {
 
   const [webChat, token, styleOptions, hostConfig, hooksModule, shellHtml] = await Promise.all([
     ensureWebChatLoaded(),
-    fetchToken(skin.directLine.tokenUrl),
+    fetchDirectLineToken(skin.directLine.tokenUrl),
     fetchJson<Record<string, unknown>>(skin.webchat.styleOptions),
     fetchJson<Record<string, unknown>>(skin.webchat.adaptiveCardsHostConfig),
     loadHooks(skin.hooks?.script),
@@ -57,17 +60,28 @@ export async function prepareExperience(): Promise<PreparedExperience> {
         throw new Error('Missing WebChat mount node');
       }
 
+      const directLine = webChat.createDirectLine({ token });
       const config: WebChatConfig = {
-        directLine: webChat.createDirectLine({ token }),
+        directLine,
         locale: skin.webchat.locale ?? 'en-US',
         styleOptions,
         adaptiveCardsHostConfig: hostConfig
       };
 
       const middleware = hooksModule?.createStoreMiddleware?.();
-      if (middleware && webChat.createStore) {
-        config.store = webChat.createStore({}, middleware);
+      let store: WebChatStore | undefined;
+      if (webChat.createStore) {
+        store = middleware ? webChat.createStore({}, middleware) : webChat.createStore();
+        if (store) {
+          config.store = store;
+        }
       }
+
+      watchWebChatConnection(store, directLine as {
+        connectionStatus$?: {
+          subscribe: (listener: (status: unknown) => void) => { unsubscribe?: () => void };
+        };
+      });
 
       await hooksModule?.onBeforeRender?.({ tenant, skin, webchatConfig: config });
       webChat.renderWebChat(config, target);
@@ -99,18 +113,6 @@ async function fetchFullPageShell(url: string): Promise<string> {
   }
   const html = await response.text();
   return rewriteShellHtml(html);
-}
-
-async function fetchToken(url: string): Promise<string> {
-  const response = await fetch(url, { headers: { Accept: 'application/json' } });
-  if (!response.ok) {
-    throw new Error('Failed to retrieve Direct Line token.');
-  }
-  const json = await response.json();
-  if (!json.token) {
-    throw new Error('Token endpoint did not return a token.');
-  }
-  return json.token as string;
 }
 
 async function ensureWebChatLoaded(): Promise<WebChatExports> {

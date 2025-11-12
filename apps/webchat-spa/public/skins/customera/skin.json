@@ -15,6 +15,14 @@
     "adaptiveCardsHostConfig": "/skins/customera/webchat/hostconfig.json",
     "locale": "en-GB"
   },
+  "statusBar": {
+    "show": true,
+    "brand": {
+      "ok": "#22c55e",
+      "warn": "#f59e0b",
+      "err": "#ef4444"
+    }
+  },
   "fullpage": {
     "index": "/skins/customera/fullpage/index.html",
     "css": "/skins/customera/fullpage/page.css"

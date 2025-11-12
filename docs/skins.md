@@ -5,6 +5,7 @@ This repository treats every customer experience as a "skin" that lives under `a
 - `skin.json`: metadata used by the SPA at runtime and by the validator at build time
 - `assets/`: images such as logo, favicon, hero artwork
 - `webchat/`: WebChat specific overrides (style options, Adaptive Cards host config, optional hooks script)
+- `statusBar`: optional overrides for the shared status strip (show/hide plus tenant colors)
 - `fullpage/`: HTML + CSS files for full page mode
 
 ## Creating a new tenant
@@ -14,7 +15,18 @@ This repository treats every customer experience as a "skin" that lives under `a
    - Ensure the `tenant` value matches the directory name.
    - Point every path to your new asset (remember to keep leading `/skins/...`).
    - Set `mode` to either `fullpage` or `widget`.
-   - Update the `directLine.tokenUrl` to the URL exposed by greentic-messaging.
+- Update the `directLine.tokenUrl` to the URL exposed by greentic-messaging.
+- Optionally add a `statusBar` block so the shared connection strip can respect tenant colors:
+  ```json
+  "statusBar": {
+    "show": true,
+    "brand": {
+      "ok": "#22c55e",
+      "warn": "#f59e0b",
+      "err": "#ef4444"
+    }
+  }
+  ```
 3. Replace the logo, favicon, and hero art inside `assets/`.
 4. Customize the WebChat experience by editing `webchat/styleOptions.json` and `webchat/hostconfig.json`.
 5. (Optional) Update `webchat/hooks.js` to inject store middleware or run code before render. The module can export:

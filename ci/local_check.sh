@@ -32,6 +32,30 @@ echo "[local_check] assembling site/"
 rm -rf site
 mkdir -p site/js site/skins
 [ -d docs ] && rsync -a docs/ site/
+echo "[local_check] verifying skins statusBar metadata"
+python3 - <<'PY'
+import json
+import pathlib
+import sys
+
+skins_dir = pathlib.Path('site/skins')
+missing = []
+for skin in skins_dir.glob('*.json'):
+    try:
+        payload = json.loads(skin.read_text())
+    except json.JSONDecodeError as error:
+        missing.append(f"{skin}: invalid JSON ({error})")
+        continue
+    status = payload.get('statusBar')
+    if not status or 'show' not in status:
+        missing.append(f"{skin}: missing statusBar.show")
+
+if missing:
+    print('Skin metadata missing statusBar.show:')
+    for entry in missing:
+        print('  ', entry)
+    sys.exit(1)
+PY
 mkdir -p site/app
 rsync -a apps/webchat-spa/dist/ site/app/
 

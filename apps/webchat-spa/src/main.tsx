@@ -2,6 +2,7 @@ import { StrictMode, useEffect, useRef, useState } from 'react';
 import ReactDOM from 'react-dom/client';
 import './style.css';
 import { prepareExperience, PreparedExperience, resolvePublicUrl } from './bootstrap';
+import { StatusBar } from './components/StatusBar';
 
 interface LoadingState {
   status: 'loading';
@@ -88,10 +89,17 @@ const App = () => {
 
   if (state.data.mode === 'fullpage') {
     return (
-      <div
-        className="fullpage-shell"
-        dangerouslySetInnerHTML={{ __html: state.data.shellHtml || '<p>Missing full-page template.</p>' }}
-      />
+      <div className="fullpage-shell">
+        <StatusBar
+          brand={state.data.skin.statusBar?.brand}
+          className="fullpage-status"
+          show={state.data.skin.statusBar?.show}
+        />
+        <div
+          className="fullpage-shell-content"
+          dangerouslySetInnerHTML={{ __html: state.data.shellHtml || '<p>Missing full-page template.</p>' }}
+        />
+      </div>
     );
   }
 
@@ -108,6 +116,7 @@ const App = () => {
             <small>Locale: {skin.webchat.locale}</small>
           </div>
         </div>
+        <StatusBar brand={skin.statusBar?.brand} className="widget-status" show={skin.statusBar?.show} />
         <div id="webchat" className="widget-surface" aria-live="polite" />
       </div>
     </div>

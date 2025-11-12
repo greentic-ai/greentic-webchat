@@ -6,4 +6,13 @@
     "accent": "#00a0e0",
     "text": "#0b1220"
   }
+  ,
+  "statusBar": {
+    "show": true,
+    "brand": {
+      "ok": "#22c55e",
+      "warn": "#f59e0b",
+      "err": "#ef4444"
+    }
+  }
 }

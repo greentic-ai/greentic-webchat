@@ -18,6 +18,20 @@ export const skinSchema = z
       adaptiveCardsHostConfig: z.string().min(1),
       locale: z.string().min(2).default('en-US')
     }),
+    statusBar: z
+      .object({
+        show: z.boolean().default(true),
+        brand: z
+          .object({
+            ok: z.string().min(1).optional(),
+            warn: z.string().min(1).optional(),
+            err: z.string().min(1).optional()
+          })
+          .partial()
+          .default({})
+      })
+      .optional()
+      .default({ show: true, brand: {} }),
     fullpage: z.object({
       index: z.string().min(1),
       css: z.string().min(1)

@@ -8,6 +8,7 @@ export type Skin = z.infer<typeof skinSchema>;
 export interface WebChatStore {
   dispatch: (action: unknown) => unknown;
   getState: () => unknown;
+  subscribe: (listener: () => void) => () => void;
 }
 
 export type StoreMiddleware = (store: WebChatStore) => (next: (action: unknown) => unknown) => (action: unknown) => unknown;
@@ -20,7 +21,18 @@ export interface WebChatConfig {
   store?: WebChatStore;
 }
 
+export interface WebChatConnectionStatusEnum {
+  Uninitialized: number;
+  Connecting: number;
+  Online: number;
+  ExpiredToken: number;
+  FailedToConnect: number;
+  Reconnecting?: number;
+  Ended?: number;
+}
+
 export interface WebChatExports {
+  ConnectionStatus?: WebChatConnectionStatusEnum;
   createDirectLine: (options: { token: string }) => unknown;
   createStore?: (initialState?: Record<string, unknown>, ...middleware: StoreMiddleware[]) => WebChatStore;
   renderWebChat: (config: WebChatConfig, element: HTMLElement) => void;

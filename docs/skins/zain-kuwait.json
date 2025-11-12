@@ -7,4 +7,13 @@
     "highlight": "#8CC63F",
     "text": "#111114"
   }
+  ,
+  "statusBar": {
+    "show": true,
+    "brand": {
+      "ok": "#22c55e",
+      "warn": "#f59e0b",
+      "err": "#ef4444"
+    }
+  }
 }

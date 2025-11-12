@@ -72,3 +72,35 @@ body {
   margin: 0 auto;
   color: #ba1b1d;
 }
+
+.status-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  border: 1px solid rgba(16, 185, 129, 0.12);
+  font-weight: 600;
+  color: #0f172a;
+  box-shadow: 0 4px 10px rgba(15, 23, 42, 0.08);
+}
+
+.connection-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.widget-status {
+  margin: 1.5rem 0;
+}
+
+.fullpage-status {
+  position: sticky;
+  top: 1rem;
+  z-index: 20;
+  margin: 0 auto;
+  width: min(960px, calc(100% - 2rem));
+}
