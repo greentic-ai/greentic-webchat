@@ -11,19 +11,18 @@ tenant = sys.argv[1]
 if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", tenant):
     raise SystemExit(f"invalid tenant name: {tenant!r}")
 
-def is_relative_to(path: pathlib.Path, base: pathlib.Path) -> bool:
+def safe_join(base: pathlib.Path, *paths: str) -> pathlib.Path:
+    base = base.resolve()
+    candidate = base.joinpath(*paths).resolve()
     try:
-        path.relative_to(base)
-        return True
+        candidate.relative_to(base)
     except ValueError:
-        return False
+        raise SystemExit(f"refusing to write outside repo root: {candidate}")
+    return candidate
 
 raw_path = sys.argv[2]
 repo_root = pathlib.Path(__file__).resolve().parent.parent
-path = pathlib.Path(raw_path).resolve()
-
-if not is_relative_to(path, repo_root):
-    raise SystemExit(f"refusing to write outside repo root: {path}")
+path = safe_join(repo_root, raw_path)
 if path.suffix.lower() != ".html":
     raise SystemExit(f"target file must be .html: {path}")
 if not path.is_file():
