@@ -724,15 +724,27 @@
           return;
         }
         debugOverlay.classList.remove('hidden');
-        debugOverlay.innerHTML = `
-          <strong>debug</strong>
-          <div>tokenFetchState: ${tokenFetchState}</div>
-          <div>connectionStatus: ${connectionStatus}</div>
-          <div>tokenUrl: ${resolvedTokenUrl || 'n/a'}</div>
-          <div>domain: ${resolvedDomain || 'n/a'}</div>
-          <div>tenant: ${resolvedTenant}</div>
-          <div>skin: ${resolvedSkinTheme}</div>
-        `;
+        const fragment = document.createDocumentFragment();
+        const title = document.createElement('strong');
+        title.textContent = 'debug';
+        fragment.appendChild(title);
+
+        const entries = [
+          ['tokenFetchState', tokenFetchState],
+          ['connectionStatus', connectionStatus],
+          ['tokenUrl', resolvedTokenUrl || 'n/a'],
+          ['domain', resolvedDomain || 'n/a'],
+          ['tenant', resolvedTenant],
+          ['skin', resolvedSkinTheme]
+        ];
+
+        entries.forEach(([label, value]) => {
+          const row = document.createElement('div');
+          row.textContent = `${label}: ${value}`;
+          fragment.appendChild(row);
+        });
+
+        debugOverlay.replaceChildren(fragment);
       }
 
       function setStatus(kind, text) {

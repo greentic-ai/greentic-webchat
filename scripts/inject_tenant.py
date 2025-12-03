@@ -8,7 +8,27 @@ if len(sys.argv) != 3:
     sys.exit(2)
 
 tenant = sys.argv[1]
-path = pathlib.Path(sys.argv[2])
+if not re.fullmatch(r"[A-Za-z0-9_-]{1,64}", tenant):
+    raise SystemExit(f"invalid tenant name: {tenant!r}")
+
+def is_relative_to(path: pathlib.Path, base: pathlib.Path) -> bool:
+    try:
+        path.relative_to(base)
+        return True
+    except ValueError:
+        return False
+
+raw_path = sys.argv[2]
+repo_root = pathlib.Path(__file__).resolve().parent.parent
+path = pathlib.Path(raw_path).resolve()
+
+if not is_relative_to(path, repo_root):
+    raise SystemExit(f"refusing to write outside repo root: {path}")
+if path.suffix.lower() != ".html":
+    raise SystemExit(f"target file must be .html: {path}")
+if not path.is_file():
+    raise SystemExit(f"target file not found: {path}")
+
 html = path.read_text()
 
 if 'tenant-resolver.js' not in html:

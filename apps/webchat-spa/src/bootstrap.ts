@@ -12,6 +12,7 @@ import { watchWebChatConnection } from './state/connection';
 
 const WEBCHAT_CDN = 'https://cdn.botframework.com/botframework-webchat/latest/webchat.js';
 const base = (import.meta.env.BASE_URL || '/').replace(/\/+$/, '') + '/';
+const ALLOWED_PUBLIC_PROTOCOLS = new Set(['http:', 'https:']);
 
 let webChatPromise: Promise<WebChatExports> | undefined;
 const hooksCache = new Map<string, Promise<SkinHooksModule>>();
@@ -226,12 +227,28 @@ function getRuntimeBase(): string {
   return base;
 }
 
-export function resolvePublicUrl(input: string): string {
-  if (/^https?:/i.test(input)) {
-    return input;
+function assertSafeProtocol(url: string): void {
+  try {
+    const parsed = new URL(url, getRuntimeBase());
+    if (!ALLOWED_PUBLIC_PROTOCOLS.has(parsed.protocol)) {
+      throw new Error(`Unsupported protocol: ${parsed.protocol}`);
+    }
+  } catch (error) {
+    throw new Error(`Blocked unsafe URL "${url}": ${(error as Error).message}`);
   }
-  const normalized = input.replace(/^\/+/, '');
-  return `${getRuntimeBase()}${normalized}`;
+}
+
+export function resolvePublicUrl(input: string): string {
+  if (!input) {
+    throw new Error('Cannot resolve empty URL');
+  }
+  const absolute = input.trim();
+  const resolved = /^https?:/i.test(absolute)
+    ? absolute
+    : `${getRuntimeBase()}${absolute.replace(/^\/+/, '')}`;
+
+  assertSafeProtocol(resolved);
+  return resolved;
 }
 
 function rewriteShellHtml(html: string): string {

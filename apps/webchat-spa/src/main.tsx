@@ -19,6 +19,69 @@ interface ErrorState {
 }
 
 type AppState = LoadingState | ReadyState | ErrorState;
+const MISSING_TEMPLATE_FALLBACK = '<p>Missing full-page template.</p>';
+const SAFE_URL_PROTOCOLS = new Set(['http:', 'https:', 'mailto:', 'tel:']);
+
+function isSafeUrl(value: string) {
+  try {
+    const parsed = new URL(value, window.location.origin);
+    return SAFE_URL_PROTOCOLS.has(parsed.protocol);
+  } catch (_error) {
+    // Treat relative URLs as safe.
+    return value.startsWith('/') || value.startsWith('./') || value.startsWith('../');
+  }
+}
+
+function sanitizeShellHtml(html: string | undefined) {
+  if (!html) {
+    return MISSING_TEMPLATE_FALLBACK;
+  }
+
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const disallowedTags = ['script', 'style', 'link', 'meta', 'object', 'embed', 'applet', 'iframe', 'frame', 'frameset', 'noscript'];
+  disallowedTags.forEach((tag) => doc.querySelectorAll(tag).forEach((el) => el.remove()));
+
+  const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_ELEMENT);
+  const elements: Element[] = [];
+  while (walker.nextNode()) {
+    elements.push(walker.currentNode as Element);
+  }
+
+  elements.forEach((el) => {
+    Array.from(el.attributes).forEach((attr) => {
+      const name = attr.name.toLowerCase();
+      const value = attr.value;
+      if (name.startsWith('on')) {
+        el.removeAttribute(attr.name);
+        return;
+      }
+      if (name === 'style') {
+        el.removeAttribute(attr.name);
+        return;
+      }
+      if (['href', 'src', 'srcset', 'action', 'formaction', 'poster', 'data', 'xlink:href'].includes(name)) {
+        if (name === 'srcset') {
+          const sources = value.split(',').map((entry) => entry.trim().split(/\s+/)[0]);
+          if (sources.some((source) => !isSafeUrl(source))) {
+            el.removeAttribute(attr.name);
+          }
+          return;
+        }
+        if (!isSafeUrl(value)) {
+          el.removeAttribute(attr.name);
+        }
+        return;
+      }
+      if (/^javascript:/i.test(value)) {
+        el.removeAttribute(attr.name);
+      }
+    });
+  });
+
+  const sanitized = doc.body.innerHTML.trim();
+  return sanitized || MISSING_TEMPLATE_FALLBACK;
+}
 
 const App = () => {
   const [state, setState] = useState<AppState>({ status: 'loading' });
@@ -97,7 +160,7 @@ const App = () => {
         />
         <div
           className="fullpage-shell-content"
-          dangerouslySetInnerHTML={{ __html: state.data.shellHtml || '<p>Missing full-page template.</p>' }}
+          dangerouslySetInnerHTML={{ __html: sanitizeShellHtml(state.data.shellHtml) }}
         />
       </div>
     );

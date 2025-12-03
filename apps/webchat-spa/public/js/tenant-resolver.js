@@ -34,6 +34,15 @@
     return input.endsWith('/') ? input : `${input}/`;
   }
 
+  function sanitizeText(value) {
+    return String(value ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function resolveBasePath() {
     const baseTag = document.querySelector('base');
     if (baseTag) {
@@ -52,16 +61,33 @@
     return '/';
   }
 
-  function injectSkinError(html) {
+  function injectSkinError(tenantText, baseText) {
+    const wrapper = document.createElement('div');
+    wrapper.style.background = '#fee2e2';
+    wrapper.style.color = '#7f1d1d';
+    wrapper.style.padding = '12px';
+    wrapper.style.borderRadius = '8px';
+    wrapper.style.margin = '8px 0';
+
+    const message = document.createElement('div');
+    message.textContent = `Something went wrong — Unable to load skin for tenant ${tenantText}.`;
+    wrapper.appendChild(message);
+
+    const baseLine = document.createElement('div');
+    baseLine.style.opacity = '0.8';
+    baseLine.style.fontSize = '12px';
+    baseLine.textContent = `Base path: ${baseText}`;
+    wrapper.appendChild(baseLine);
+
     const target = document.getElementById('skin-error');
-    if (target && target.insertAdjacentHTML) {
-      target.insertAdjacentHTML('afterbegin', html);
+    if (target) {
+      target.insertAdjacentElement('afterbegin', wrapper);
       return;
     }
 
     function write() {
       if (document.body) {
-        document.body.insertAdjacentHTML('afterbegin', html);
+        document.body.insertAdjacentElement('afterbegin', wrapper);
       }
     }
 
@@ -87,6 +113,9 @@
     const tenant = window.__TENANT__ || resolveTenant();
     const base = ensureTrailingSlash(window.__BASE_PATH__ || resolveBasePath());
     const url = `${base}skins/${encodeURIComponent(tenant)}/skin.json`;
+    const safeTenant = sanitizeText(tenant);
+    const safeBase = sanitizeText(base);
+    const safeUrl = sanitizeText(url);
     try {
       const res = await fetch(url, { credentials: 'omit' });
       if (!res.ok) {
@@ -94,16 +123,11 @@
       }
       const skin = await res.json();
       window.__SKIN__ = skin;
-      console.info('[webchat] skin loaded:', tenant, url);
+      console.info('[webchat] skin loaded', { tenant: safeTenant, url: safeUrl });
       return skin;
     } catch (err) {
-      console.error(`[webchat] Unable to load skin for tenant "${tenant}" from "${url}"`, err);
-      injectSkinError(
-        `<div style="background:#fee2e2;color:#7f1d1d;padding:12px;border-radius:8px;margin:8px 0;">` +
-          `Something went wrong — Unable to load skin for tenant <b>${tenant}</b>.` +
-          `<div style="opacity:.8;font-size:12px">Base path: ${base}</div>` +
-          `</div>`
-      );
+      console.error('[webchat] Unable to load skin', { tenant: safeTenant, url: safeUrl, error: err });
+      injectSkinError(safeTenant, safeBase);
       throw err;
     }
   };
