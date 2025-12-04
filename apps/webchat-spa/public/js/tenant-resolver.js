@@ -43,6 +43,14 @@
       .replace(/'/g, '&#39;');
   }
 
+  function sanitizeTenantName(name) {
+    return (
+      String(name || '')
+        .replace(/[^a-zA-Z0-9_-]/g, '')
+        .substring(0, 64) || '_template'
+    );
+  }
+
   function resolveBasePath() {
     const baseTag = document.querySelector('base');
     if (baseTag) {
@@ -111,9 +119,9 @@
 
   window.__loadSkin__ = async function loadSkin() {
     const tenant = window.__TENANT__ || resolveTenant();
+    const safeTenant = sanitizeTenantName(tenant);
     const base = ensureTrailingSlash(window.__BASE_PATH__ || resolveBasePath());
-    const url = `${base}skins/${encodeURIComponent(tenant)}/skin.json`;
-    const safeTenant = sanitizeText(tenant);
+    const url = `${base}skins/${encodeURIComponent(safeTenant)}/skin.json`;
     const safeBase = sanitizeText(base);
     const safeUrl = sanitizeText(url);
     try {
