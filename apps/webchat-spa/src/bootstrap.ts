@@ -55,6 +55,7 @@ export async function prepareExperience(): Promise<PreparedExperience> {
     tenant,
     mode,
     skin,
+    // shellHtml is served from a tenant-controlled template, not user input.
     shellHtml,
     renderWebChat: async (target: HTMLElement) => {
       if (!target) {

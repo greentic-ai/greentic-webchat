@@ -96,7 +96,7 @@ const App = () => {
           className="fullpage-status"
           show={state.data.skin.statusBar?.show}
         />
-        {/* Full-page template is sanitized with DOMPurify before insertion to mitigate XSS/Snyk findings. */}
+        {/* Full-page template is sanitized with DOMPurify to mitigate XSS. */}
         <div
           className="fullpage-shell-content"
           dangerouslySetInnerHTML={{ __html: sanitizeShellHtml(state.data.shellHtml) }}
