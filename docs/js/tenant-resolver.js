@@ -29,7 +29,6 @@
     const tenant = window.__TENANT__;
     const base = window.__BASE_PATH__;
     const url = `${base}skins/${encodeURIComponent(tenant)}.json`;
-    const safeTenant = String(tenant ?? '').replace(/%/g, '%%');
     try {
       const res = await fetch(url, { credentials: "omit" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -37,8 +36,8 @@
       window.__SKIN__ = skin;
       return skin;
     } catch (err) {
-      console.error("[webchat] Unable to load skin", { tenant: safeTenant, url, error: err });
-      window.__SKIN__ = { theme: "default", brand: { name: safeTenant } };
+      console.error(`[webchat] Unable to load skin for "${tenant}" from "${url}"`, err);
+      window.__SKIN__ = { theme: "default", brand: { name: tenant } };
       return window.__SKIN__;
     }
   };
