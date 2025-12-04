@@ -1,9 +1,9 @@
 import { StrictMode, useEffect, useRef, useState } from 'react';
-import DOMPurify from 'dompurify';
 import ReactDOM from 'react-dom/client';
 import './style.css';
 import { prepareExperience, PreparedExperience, resolvePublicUrl } from './bootstrap';
 import { StatusBar } from './components/StatusBar';
+import { sanitizeShellHtml } from './sanitizeShellHtml';
 
 interface LoadingState {
   status: 'loading';
@@ -20,15 +20,6 @@ interface ErrorState {
 }
 
 type AppState = LoadingState | ReadyState | ErrorState;
-const MISSING_TEMPLATE_FALLBACK = '<p>Missing full-page template.</p>';
-
-function sanitizeShellHtml(html: string | undefined) {
-  const clean = DOMPurify.sanitize(html || MISSING_TEMPLATE_FALLBACK, {
-    USE_PROFILES: { html: true },
-    ALLOWED_URI_REGEXP: /^(?:(?:https?|mailto|tel):|\/|\.{1,2}\/)/i
-  });
-  return clean || MISSING_TEMPLATE_FALLBACK;
-}
 
 const App = () => {
   const [state, setState] = useState<AppState>({ status: 'loading' });
@@ -105,6 +96,7 @@ const App = () => {
           className="fullpage-status"
           show={state.data.skin.statusBar?.show}
         />
+        {/* Full-page template is sanitized with DOMPurify before insertion to mitigate XSS/Snyk findings. */}
         <div
           className="fullpage-shell-content"
           dangerouslySetInnerHTML={{ __html: sanitizeShellHtml(state.data.shellHtml) }}
