@@ -23,12 +23,20 @@
     if (host.endsWith("github.io") && segs.length) base = `/${segs[0]}/`;
     return base;
   }
+  function sanitizeTenantName(name) {
+    return (
+      String(name || "")
+        .replace(/[^a-zA-Z0-9_-]/g, "")
+        .substring(0, 64) || "demo"
+    );
+  }
   if (!window.__TENANT__) window.__TENANT__ = resolveTenant();
   if (!window.__BASE_PATH__) window.__BASE_PATH__ = resolveBasePath();
   window.__loadSkin__ = async function () {
     const tenant = window.__TENANT__;
+    const safeTenant = sanitizeTenantName(tenant);
     const base = window.__BASE_PATH__;
-    const url = `${base}skins/${encodeURIComponent(tenant)}.json`;
+    const url = `${base}skins/${encodeURIComponent(safeTenant)}.json`;
     try {
       const res = await fetch(url, { credentials: "omit" });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -36,8 +44,8 @@
       window.__SKIN__ = skin;
       return skin;
     } catch (err) {
-      console.error(`[webchat] Unable to load skin for "${tenant}" from "${url}"`, err);
-      window.__SKIN__ = { theme: "default", brand: { name: tenant } };
+      console.error("[webchat] Unable to load skin", { tenant: safeTenant, url, error: err });
+      window.__SKIN__ = { theme: "default", brand: { name: safeTenant } };
       return window.__SKIN__;
     }
   };
