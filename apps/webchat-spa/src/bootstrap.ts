@@ -230,7 +230,9 @@ function getRuntimeBase(): string {
 
 function assertSafeProtocol(url: string): void {
   try {
-    const parsed = new URL(url, getRuntimeBase());
+    const baseForValidation =
+      typeof window !== 'undefined' && window.location?.origin ? window.location.origin : 'https://localhost';
+    const parsed = new URL(url, baseForValidation);
     if (!ALLOWED_PUBLIC_PROTOCOLS.has(parsed.protocol)) {
       throw new Error(`Unsupported protocol: ${parsed.protocol}`);
     }
